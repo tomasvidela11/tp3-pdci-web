@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planta remota · TP3 PdCI</title>
+<meta name="description" content="Host Application de Sparkplug B del TP3 Integrador de Protocolos de Comunicaciones Industriales (UNRaf)">
+<link rel="stylesheet" href="estilos.css">
+<!-- Librerías (copias fijas, verificadas contra el registro de npm; ver lib/LICENCIAS.md) -->
+<script src="lib/mqtt.min.js"></script>
+<script src="lib/long.js"></script>
+<script src="lib/protobuf.min.js"></script>
+<script type="module" src="js/principal.js"></script>
+</head>
+<body>
+<header class="cabecera">
+  <div>
+    <h1>Planta remota</h1>
+    <p class="subtitulo">TP3 · Host Application Sparkplug B «WebPdCI» · grupo UNRaf_PdCI</p>
+  </div>
+  <span id="pastilla-broker" class="pastilla desconocido">Sin conectar</span>
+</header>
+
+<main>
+  <!-- WB5.1 Conexión -->
+  <section class="tarjeta" id="conexion">
+    <form id="formulario" autocomplete="on">
+      <div class="campos">
+        <label>Broker (WSS)
+          <input id="campo-url" name="broker" type="url" required spellcheck="false">
+        </label>
+        <label>Usuario
+          <input id="campo-usuario" name="username" type="text" autocomplete="username" required spellcheck="false">
+        </label>
+        <label>Contraseña
+          <input id="campo-clave" name="password" type="password" autocomplete="current-password" required>
+        </label>
+      </div>
+      <div class="botones">
+        <button id="boton-conectar" type="submit">Conectar</button>
+        <button id="boton-desconectar" type="button" class="secundario" disabled>Desconectar</button>
+      </div>
+      <p class="ayuda">La contraseña se usa solo para conectarse al broker: no se guarda en la página ni en el navegador.</p>
+    </form>
+  </section>
+
+  <!-- WB5.2 Cadena de comunicación por tramos -->
+  <section class="tarjeta" id="cadena">
+    <h2>Estado de la comunicación</h2>
+    <ol class="cadena" aria-label="Tramos de la comunicación, del esclavo a la web">
+      <li class="equipo"><strong>Disp. 1</strong><span>Arduino esclavo</span></li>
+      <li class="tramo desconocido" id="tramo-rs485"><span class="medio">RS485 · MODBus RTU</span><span class="estado-tramo">—</span></li>
+      <li class="equipo"><strong>Disp. 2</strong><span>rpi-servidor</span></li>
+      <li class="tramo desconocido" id="tramo-ethernet"><span class="medio">Ethernet · OPC UA</span><span class="estado-tramo">—</span></li>
+      <li class="equipo"><strong>Disp. 3</strong><span>rpi-cliente · Edge Node</span></li>
+      <li class="tramo desconocido" id="tramo-internet"><span class="medio">Internet · MQTT (TLS)</span><span class="estado-tramo">—</span></li>
+      <li class="equipo"><strong>Broker</strong><span>EMQX</span></li>
+      <li class="tramo desconocido" id="tramo-web"><span class="medio">Internet · MQTT (WSS)</span><span class="estado-tramo">—</span></li>
+      <li class="equipo"><strong>Web</strong><span>esta página</span></li>
+    </ol>
+    <p id="diagnostico" class="diagnostico desconocido">Conectate al broker para ver el estado.</p>
+  </section>
+
+  <div class="columnas">
+    <!-- WB5.3 Dispositivo: entradas y salidas -->
+    <section class="tarjeta" id="dispositivo">
+      <div class="titulo-tarjeta">
+        <h2>Dispositivo 1 · entradas y salidas</h2>
+        <span id="estado-dispositivo" class="pastilla desconocido">sin datos</span>
+      </div>
+      <div id="metricas-dispositivo" class="metricas"><p class="vacio">Esperando el DBIRTH del dispositivo.</p></div>
+      <p class="resultado">Último comando: <span id="resultado-comando">—</span></p>
+    </section>
+
+    <!-- WB5.4 Edge Node: estado de cada capa -->
+    <section class="tarjeta" id="nodo">
+      <div class="titulo-tarjeta">
+        <h2>Edge Node · estado de cada capa</h2>
+        <span id="estado-nodo" class="pastilla desconocido">sin datos</span>
+      </div>
+      <div class="capas">
+        <div class="capa"><h3>MODBus</h3><dl id="capa-modbus"></dl></div>
+        <div class="capa"><h3>OPC UA</h3><dl id="capa-opcua"></dl></div>
+        <div class="capa"><h3>MQTT</h3><dl id="capa-mqtt"></dl></div>
+        <div class="capa"><h3>Sparkplug B</h3><dl id="capa-sparkplug"></dl></div>
+      </div>
+      <div class="botones">
+        <button id="boton-rebirth" type="button" class="secundario" disabled>Pedir Rebirth (NCMD)</button>
+      </div>
+      <details>
+        <summary>Todas las métricas del nodo</summary>
+        <div class="tabla-envoltura"><table id="tabla-nodo"><thead><tr><th>Métrica</th><th>Valor</th><th>Tipo</th><th>Quality</th><th>Hace</th></tr></thead><tbody></tbody></table></div>
+      </details>
+    </section>
+  </div>
+
+  <!-- WB5.5 Registro de eventos -->
+  <section class="tarjeta" id="registro">
+    <div class="titulo-tarjeta">
+      <h2>Eventos</h2>
+      <span id="contadores" class="contadores"></span>
+    </div>
+    <ol id="eventos" class="eventos"></ol>
+  </section>
+</main>
+
+<footer class="pie">Broggi · Cianflone · Videla — Protocolos de Comunicaciones Industriales, UNRaf, 2026</footer>
+</body>
+</html>

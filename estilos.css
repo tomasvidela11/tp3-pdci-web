@@ -1,0 +1,186 @@
+/* Estilos de la web del TP3 (frente B). Claro por defecto; oscuro si el sistema lo pide. */
+
+:root {
+  --fondo: #f4f5f7;
+  --tarjeta: #ffffff;
+  --texto: #1d2330;
+  --suave: #5b6476;
+  --borde: #d9dde5;
+  --acento: #1f5fbf;
+  --ok: #1e7f4f;
+  --ok-fondo: #e3f4ea;
+  --aviso: #9a5b00;
+  --aviso-fondo: #fdf0d9;
+  --falla: #b3261e;
+  --falla-fondo: #fbe4e2;
+  --nada: #6b7280;
+  --nada-fondo: #eceef2;
+  --sombra: 0 1px 2px rgba(16, 24, 40, .06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #12151b;
+    --tarjeta: #1b2029;
+    --texto: #e7eaf0;
+    --suave: #9aa3b5;
+    --borde: #2e3542;
+    --acento: #7aa7f0;
+    --ok: #5fd39a;
+    --ok-fondo: #173326;
+    --aviso: #f2b552;
+    --aviso-fondo: #3a2c12;
+    --falla: #ff8a80;
+    --falla-fondo: #3d1a18;
+    --nada: #9aa3b5;
+    --nada-fondo: #262c37;
+    --sombra: none;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+main { max-width: 1180px; margin: 0 auto; padding: 0 16px 24px; }
+h1 { font-size: 1.35rem; margin: 0; }
+h2 { font-size: 1.05rem; margin: 0 0 12px; }
+h3 { font-size: .8rem; margin: 0 0 6px; color: var(--suave); text-transform: uppercase; letter-spacing: .04em; }
+
+.cabecera {
+  max-width: 1180px; margin: 0 auto; padding: 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.subtitulo { margin: 2px 0 0; color: var(--suave); font-size: .85rem; }
+.pie { text-align: center; color: var(--suave); font-size: .8rem; padding: 8px 16px 24px; }
+
+.tarjeta {
+  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px;
+  padding: 16px; margin-bottom: 16px; box-shadow: var(--sombra); min-width: 0;
+}
+.titulo-tarjeta { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.titulo-tarjeta h2 { margin: 0; }
+.columnas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.columnas > .tarjeta { margin-bottom: 0; }
+.columnas { margin-bottom: 16px; }
+
+/* Estados */
+.pastilla {
+  display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .8rem; font-weight: 600;
+  white-space: nowrap;
+}
+.ok { color: var(--ok); background: var(--ok-fondo); }
+.aviso { color: var(--aviso); background: var(--aviso-fondo); }
+.falla { color: var(--falla); background: var(--falla-fondo); }
+.desconocido { color: var(--nada); background: var(--nada-fondo); }
+
+/* WB5.1 Conexión */
+.campos { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: .8rem; color: var(--suave); }
+input[type=url], input[type=text], input[type=password] {
+  font: inherit; color: var(--texto); background: var(--fondo); border: 1px solid var(--borde);
+  border-radius: 6px; padding: 7px 9px; min-width: 0;
+}
+.botones { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+button {
+  font: inherit; font-weight: 600; border-radius: 6px; padding: 7px 14px; cursor: pointer;
+  border: 1px solid var(--acento); background: var(--acento); color: #fff;
+}
+button.secundario { background: transparent; color: var(--acento); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.ayuda { color: var(--suave); font-size: .8rem; margin: 10px 0 0; }
+
+/* WB5.2 Cadena por tramos */
+.cadena { list-style: none; margin: 0; padding: 0; display: flex; align-items: stretch; gap: 0; }
+.cadena .equipo {
+  flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; text-align: center;
+  border: 1px solid var(--borde); border-radius: 8px; padding: 8px 10px; background: var(--fondo); min-width: 88px;
+}
+.cadena .equipo span { font-size: .75rem; color: var(--suave); }
+.cadena .tramo {
+  flex: 1 1 0; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; padding: 6px 4px; position: relative; background: transparent; min-width: 0;
+}
+.cadena .tramo::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 4px; transform: translateY(-50%);
+  background: currentColor; opacity: .55; border-radius: 2px;
+}
+.cadena .tramo .medio, .cadena .tramo .estado-tramo {
+  position: relative; background: var(--tarjeta); padding: 0 6px; font-size: .72rem; line-height: 1.3;
+}
+.cadena .tramo .medio { color: var(--suave); margin-bottom: 14px; }
+.cadena .tramo .estado-tramo { font-weight: 700; margin-top: 2px; }
+.cadena .tramo.ok, .cadena .tramo.aviso, .cadena .tramo.falla, .cadena .tramo.desconocido { background: transparent; }
+.cadena .tramo.falla::before { height: 4px; background: repeating-linear-gradient(90deg, currentColor 0 8px, transparent 8px 14px); opacity: .9; }
+.diagnostico { margin: 12px 0 0; padding: 8px 12px; border-radius: 6px; font-weight: 600; }
+
+/* WB5.3 Métricas del dispositivo */
+.metricas { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.metrica { border: 1px solid var(--borde); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+.metrica .nombre { font-size: .8rem; color: var(--suave); display: flex; justify-content: space-between; gap: 6px; }
+.metrica .valor { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 10px; }
+.metrica .detalle { font-size: .72rem; color: var(--suave); }
+.metrica.stale { opacity: .55; }
+.metrica.stale .valor { text-decoration: line-through; text-decoration-thickness: 1px; }
+.chip { font-size: .66rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; }
+.lampara { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--borde); background: var(--nada-fondo); flex: 0 0 auto; }
+.lampara.encendida { background: #f5b301; border-color: #c98f00; box-shadow: 0 0 10px rgba(245, 179, 1, .7); }
+.barra { height: 8px; border-radius: 4px; background: var(--nada-fondo); overflow: hidden; }
+.barra > div { height: 100%; background: var(--acento); width: 0; transition: width .15s; }
+input[type=range] { width: 100%; accent-color: var(--acento); }
+.fila-envio { display: flex; gap: 6px; }
+.fila-envio input {
+  flex: 1 1 auto; min-width: 0; font: inherit; color: var(--texto); background: var(--fondo);
+  border: 1px solid var(--borde); border-radius: 6px; padding: 5px 8px;
+}
+.resultado { margin: 12px 0 0; font-size: .85rem; color: var(--suave); }
+.resultado span { color: var(--texto); }
+.vacio { color: var(--suave); margin: 0; }
+
+/* WB5.4 Capas del nodo */
+.capas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.capa { border: 1px solid var(--borde); border-radius: 8px; padding: 10px; }
+.capa dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: .85rem; }
+.capa dt { color: var(--suave); }
+/* break-word y no anywhere: con anywhere, la grilla puede dejar el valor en una columna de un carácter
+   (con la ventana de unos 860 a 1000 px, «seq» salía con un dígito por renglón). break-word parte solo
+   lo que no entra y no achica la columna por debajo de la palabra más larga. */
+.capa dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: break-word; }
+.capa dd.stale { opacity: .5; }
+.capa dd.ok, .capa dd.aviso, .capa dd.falla { background: transparent; }
+details { margin-top: 12px; }
+summary { cursor: pointer; color: var(--acento); font-size: .85rem; }
+.tabla-envoltura { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .8rem; margin-top: 8px; }
+th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+td.num { font-variant-numeric: tabular-nums; }
+
+/* WB5.5 Eventos */
+.contadores { font-size: .75rem; color: var(--suave); }
+.eventos { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow-y: auto; font-size: .8rem; }
+.eventos li { padding: 4px 6px; border-bottom: 1px solid var(--borde); display: grid; grid-template-columns: 92px 1fr; gap: 8px; }
+.eventos time { color: var(--suave); font-variant-numeric: tabular-nums; }
+.eventos li.birth { border-left: 3px solid var(--ok); }
+.eventos li.death { border-left: 3px solid var(--falla); }
+.eventos li.seq, .eventos li.rebirth { border-left: 3px solid var(--aviso); }
+.eventos li.error { border-left: 3px solid var(--falla); color: var(--falla); }
+.eventos li.cmd, .eventos li.ok { border-left: 3px solid var(--acento); }
+.eventos li.sesion { border-left: 3px solid var(--nada); color: var(--suave); }
+
+/* Celular y tableta */
+@media (max-width: 860px) {
+  .columnas { grid-template-columns: 1fr; }
+  .campos { grid-template-columns: 1fr; }
+  .cadena { flex-direction: column; align-items: stretch; }
+  .cadena .equipo { flex-direction: row; justify-content: space-between; text-align: left; gap: 8px; }
+  .cadena .tramo { flex-direction: row; justify-content: space-between; padding: 10px 8px 10px 22px; min-height: 44px; }
+  .cadena .tramo::before { left: 10px; right: auto; top: 0; bottom: 0; width: 4px; height: auto; transform: none; }
+  .cadena .tramo.falla::before { width: 4px; background: repeating-linear-gradient(180deg, currentColor 0 8px, transparent 8px 14px); }
+  .cadena .tramo .medio { margin-bottom: 0; }
+  .eventos li { grid-template-columns: 1fr; gap: 0; }
+}
+@media (max-width: 480px) {
+  .capas { grid-template-columns: 1fr; }
+}

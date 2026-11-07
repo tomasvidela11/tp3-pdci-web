@@ -149,6 +149,11 @@ input[type=range] { width: 100%; accent-color: var(--acento); }
    lo que no entra y no achica la columna por debajo de la palabra más larga. */
 .capa dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: break-word; }
 .capa dd.stale { opacity: .5; }
+/* Fila ancha (Configuración): nombre y valor ocupan las dos columnas, uno debajo del otro, para que un
+   texto largo como «ID 1 · 9600 8E1 · /dev/ttyUSB0» no quede partido en una columna angosta (E3). */
+.capa dt.ancha, .capa dd.ancha { grid-column: 1 / -1; }
+.capa dt.ancha { margin-top: 2px; }
+.capa dd.ancha { text-align: left; }
 .capa dd.ok, .capa dd.aviso, .capa dd.falla { background: transparent; }
 details { margin-top: 12px; }
 summary { cursor: pointer; color: var(--acento); font-size: .85rem; }

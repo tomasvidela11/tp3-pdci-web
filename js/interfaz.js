@@ -3,8 +3,8 @@
 //
 // Dibuja el modelo de la Host Application (modelo.js) y pasa las órdenes del usuario. No conoce
 // MQTT ni protobuf. El panel del dispositivo se arma con las métricas del DBIRTH (nombre,
-// datatype y propiedades Escribible, Minimo y Maximo): un esclavo con otras entradas y salidas se
-// ve sin cambiar el código.
+// datatype y propiedades Escribible, Minimo, Maximo y ModbusRef): un esclavo con otras entradas y
+// salidas se ve sin cambiar el código.
 //
 // Bloques:
 //   WB5.1 Formulario de conexión            WB5.2 Cadena por tramos y diagnóstico de la falla
@@ -18,12 +18,15 @@ import { ESTADO } from "./modelo.js";
 const $ = (id) => document.getElementById(id);
 const MAX_EVENTOS = 300;
 
-// Métricas del nodo que se muestran en cada capa (consigna, tabla 1, y las que agrega el Edge Node).
+// Métricas del nodo que se muestran en cada capa (consigna, tabla 1, y las que agregan el contrato v1.0
+// y el Edge Node: docs/CONTRATO_OPCUA.md, secciones 4 y 7). Un tercer elemento "ancha" pone la fila en
+// todo el ancho de la capa, con el nombre arriba y el valor abajo (textos largos como Configuración).
 const CAPAS = {
     "capa-modbus": [["Estado", "Status/MODBUS/Estado"], ["OK", "Status/MODBUS/OK"],
         ["CRC_ERROR", "Status/MODBUS/CRC_ERROR"], ["TIMEOUT", "Status/MODBUS/TIMEOUT"],
-        ["Esclavo en línea", "Status/MODBUS/EsclavoEnLinea"]],
-    "capa-opcua": [["Estado", "Status/OPCUA/Estado"]],
+        ["TRAMA_INVALIDA", "Status/MODBUS/TRAMA_INVALIDA"], ["EXCEPCION", "Status/MODBUS/EXCEPCION"],
+        ["Esclavo en línea", "Status/MODBUS/EsclavoEnLinea"], ["Configuración", "Status/MODBUS/Configuracion", "ancha"]],
+    "capa-opcua": [["Estado", "Status/OPCUA/Estado"], ["Reconexiones", "Status/OPCUA/Reconexiones"]],
     "capa-mqtt": [["Reconexiones", "Status/MQTT/Reconexiones"], ["bdSeq", "bdSeq"]],
     "capa-sparkplug": [["Rebirths del nodo", "Status/Sparkplug/Rebirths"]],
 };
@@ -187,7 +190,7 @@ export class Interfaz {
             mensaje = "Falla en el tramo disp. 1 ↔ disp. 2 (RS485, MODBus): DEVICE NOT REACHED. El esclavo no responde.";
         } else if (t.rs485[0] === "aviso") {
             clase = "aviso";
-            mensaje = `Falla en el tramo disp. 1 ↔ disp. 2 (RS485, MODBus): ${t.rs485[1]}. Las respuestas llegan con el CRC errado.`;
+            mensaje = `Falla en el tramo disp. 1 ↔ disp. 2 (RS485, MODBus): ${t.rs485[1]}. Las respuestas llegan con el CRC errado o incompletas; a las 3 seguidas, los datos del dispositivo quedan en STALE.`;
         } else if (t.ethernet[0] === "desconocido" || t.rs485[0] === "desconocido") {
             clase = "desconocido";
             mensaje = "Edge Node en línea; esperando el estado de OPC UA y MODBus.";
@@ -219,7 +222,10 @@ export class Interfaz {
             return;
         }
         const nombres = [...disp.metricas.keys()].sort((a, b) => (a.startsWith("Outputs/") - b.startsWith("Outputs/")) || a.localeCompare(b));
-        const firma = nombres.map(n => `${n}:${disp.metricas.get(n).datatype}:${disp.metricas.get(n).propiedades.Escribible}`).join("|");
+        const firma = nombres.map(n => {
+            const m = disp.metricas.get(n);
+            return `${n}:${m.datatype}:${m.propiedades.Escribible}:${m.propiedades.ModbusRef}`;
+        }).join("|");
         if (firma !== this.firmaDispositivo) {
             contenedor.innerHTML = "";
             this.tarjetas.clear();
@@ -335,7 +341,8 @@ export class Interfaz {
             }
         }
         const rango = t.rango ? ` · ${t.rango[0]} a ${t.rango[1]}` : "";
-        t.detalle.textContent = `${NOMBRE_DE_TIPO[m.datatype]}${rango} · hace ${hace(m.recibida)}`;
+        const ref = typeof m.propiedades.ModbusRef === "string" ? ` · ${m.propiedades.ModbusRef}` : "";
+        t.detalle.textContent = `${NOMBRE_DE_TIPO[m.datatype]}${rango}${ref} · hace ${hace(m.recibida)}`;
     }
 
     // -----------------------------------------------------------------------------------------
@@ -352,11 +359,15 @@ export class Interfaz {
         for (const [id, filas] of Object.entries(CAPAS)) {
             const dl = $(id);
             if (dl.childElementCount === 0) {
-                for (const [etiqueta, nombre] of filas) {
+                for (const [etiqueta, nombre, ancha] of filas) {
                     const dt = document.createElement("dt");
                     dt.textContent = etiqueta;
                     const dd = document.createElement("dd");
                     dd.dataset.metrica = nombre;
+                    if (ancha) {
+                        dt.classList.add("ancha");
+                        dd.classList.add("ancha");
+                    }
                     dl.append(dt, dd);
                 }
                 if (id === "capa-sparkplug") {

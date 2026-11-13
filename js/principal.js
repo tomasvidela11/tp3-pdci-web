@@ -11,6 +11,8 @@
 // con ?reorden=<ms> en la dirección de la página. El broker y el usuario se escriben en el
 // formulario; los últimos usados quedan en el navegador (localStorage), la contraseña no. El broker
 // no se toma de la dirección: un enlace preparado podría llevar la contraseña a otro servidor.
+// La contraseña queda en memoria solo mientras dura la sesión: MQTT.js la necesita para reconectar,
+// y al desconectar o al ser rechazada se borra (D49).
 //
 // Bloques: WB0.1 Configuración   WB0.2 Conexión y desconexión   WB0.3 Arranque
 // =============================================================================================
@@ -92,7 +94,10 @@ function conectar(url, usuario, clave) {
                 // aunque el nodo no publique nada nuevo (WB3.8).
                 if (estado === "conectado") h.pedirRebirth(CONFIG.nodo, "la web se conectó y necesita el estado completo");
                 interfaz.sesion(estado, detalle);
-                if (estado === "rechazado") sesion = null;
+                if (estado === "rechazado") {
+                    sesion = null;
+                    olvidarClave(s);
+                }
             },
             alMensaje: (topico, carga) => { if (s === sesion) h.procesar(topico, carga); },
             alRegistro: (texto) => interfaz.evento("sesion", texto),
@@ -106,10 +111,21 @@ function conectar(url, usuario, clave) {
     s.conectar();
 }
 
+/**
+ * Al terminar una sesión (desconectada a pedido o rechazada), borra la contraseña que MQTT.js
+ * conserva en options.password para reconectar, y suelta la referencia global a la sesión vieja.
+ * Sin esto, la contraseña sigue en memoria hasta cerrar la pestaña (E10, C2; D49).
+ */
+function olvidarClave(s) {
+    if (s.cliente && s.cliente.options) delete s.cliente.options.password;
+    if (window.WB_APP.sesion === s) window.WB_APP.sesion = null;
+}
+
 async function desconectar() {
     if (!sesion) return;
     const s = sesion;
     await s.cerrar();
+    olvidarClave(s);
     if (sesion === s) sesion = null;
     if (host) host.conexionPerdida();
     interfaz.sesion("cerrado", "desconectado a pedido");

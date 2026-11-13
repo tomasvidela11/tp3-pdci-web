@@ -69,7 +69,8 @@ export class SesionMQTT {
      * @param {string} config.hostId     host_id (WebPdCI)
      * @param {number} [config.keepaliveS=30]
      * @param {string} clave             contraseña: va solo al CONNECT (MQTT.js la conserva en
-     *                                   memoria para reconectar); no se guarda en el navegador
+     *                                   memoria para reconectar, y principal.js la borra al
+     *                                   terminar la sesión, D49); no se guarda en el navegador
      * @param {object} avisos            funciones que llama la sesión
      * @param {(estado: string, detalle: string) => void} avisos.alEstado
      *        estado: "conectando" | "conectado" | "desconectado" | "rechazado" | "cerrado"
